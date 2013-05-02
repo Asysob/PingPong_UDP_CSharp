@@ -40,29 +40,26 @@ namespace PingPong_UDP_CSharp
             sock.Close();
         }
 
+        public static IPAddress GetIPAddress ( string name ) {
+            IPHostEntry host_entry = Dns.GetHostEntry(name);
+            IPAddress host_addr = null;
+            if (host_entry == null)
+                return null;
+            foreach (IPAddress addr in host_entry.AddressList) {
+                if (addr.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    host_addr = addr;
+                    break;
+                }
+            }
+            return host_addr;
+        }
+
         public static void Client(string server_host)
         {
             Console.WriteLine("Connecting to host {0}", server_host);
             UdpClient sock = new UdpClient();
-            IPHostEntry host_entry = Dns.GetHostEntry(server_host);
-            IPAddress server_addr = null;
-            if (host_entry == null)
-            {
-                Console.WriteLine("Error while converting the host name {0} to IP address", server_host);
-                return;
-            }
-            foreach (IPAddress addr in host_entry.AddressList) {
-                if (addr.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    server_addr = addr;
-                    break;
-                }
-            }
-            if (server_addr == null)
-            {
-                Console.WriteLine("Well, don't find a IPv4 address for the given host");
-                return;
-            }
+            IPAddress server_addr = GetIPAddress(server_host);
             IPEndPoint server = new IPEndPoint(server_addr, server_port);
             string message;
             Byte[] buffer;
